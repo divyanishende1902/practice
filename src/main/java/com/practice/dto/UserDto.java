@@ -23,13 +23,15 @@ public class UserDto {
     private String name;
 
 //    @Size( min = 5, max = 30, message="should contain more than 5 letter" )
-      @Pattern(regexp = "^[a-z0-9](\\.?[a-z0-9]){5,}@g(oogle)?mail\\.com$", message = "Invalid Email!!")
-      @Email(message = "invalid Email!!")
-      @NotBlank
+     @Pattern(regexp = "^[a-z0-9](\\.?[a-z0-9]){5,}@g(oogle)?mail\\.com$", message = "Invalid Email!!")
+     @Email(message = "invalid Email!!")
+     @NotBlank
     private String email;
 
 
     @Length (min = 3, max = 20, message = "username should contain minimum 3 characters")
     private String username;
 
+    @NotBlank
+    private String password;
 }

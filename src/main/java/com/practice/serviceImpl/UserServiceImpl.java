@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.module.ResolutionException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,7 +33,26 @@ public class UserServiceImpl implements UserService {
     public UserDto createUser(UserDto userDto) {
         String userId = UUID.randomUUID().toString();
         userDto.setId(userId);
+
+        // through email checking
         User user = mapToEntity(userDto);
+        //Optional<User> opEmail = userRepository.findUserByEmail(userDto.getEmail());
+        //Optional<User> opEmail = userRepository.findUserByEmail(user.getEmail());
+
+
+       // if(opEmail != null){
+       //     throw new RuntimeException("user exists");
+       // }
+
+        // through username checking
+        Optional<User> opUsername = userRepository.findByUsername(user.getUsername());
+        if(opUsername.isPresent()){
+            throw new RuntimeException("User Exist in DB ");
+        }
+
+//        String userId = UUID.randomUUID().toString();
+//        userDto.setId(userId);
+//
         User savedUser = userRepository.save(user);
         UserDto userDto1 = mapToDto(savedUser);
 

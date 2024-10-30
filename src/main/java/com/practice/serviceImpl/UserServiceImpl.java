@@ -2,6 +2,7 @@ package com.practice.serviceImpl;
 
 import com.practice.Exception.ResourceNotFoundException;
 import com.practice.Exception.UserAlreadyExistsException;
+import com.practice.dto.LoginDto;
 import com.practice.dto.UserDto;
 import com.practice.entity.User;
 import com.practice.repository.UserRepository;
@@ -131,5 +132,16 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(String id) {
         User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with given id"));
         userRepository.delete(user);
+    }
+
+    @Override
+    public boolean verifyLogin(LoginDto loginDto) {
+        Optional<User> byUsername = userRepository.findByUsername(loginDto.getUsername());
+
+        if(byUsername.isPresent()){
+            User user = byUsername.get();// this line giving the username;
+            return BCrypt.checkpw(loginDto.getPassword(),user.getPassword());
+        }
+        return false;
     }
 }

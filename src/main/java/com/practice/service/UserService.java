@@ -1,5 +1,6 @@
 package com.practice.service;
 
+import com.practice.dto.LoginDto;
 import com.practice.dto.UserDto;
 
 import java.util.List;
@@ -24,5 +25,5 @@ public interface UserService
 
    //delete user
     void deleteUser(String id);
-
+    boolean verifyLogin(LoginDto loginDto);
 }

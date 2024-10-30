@@ -1,6 +1,7 @@
 package com.practice.controller;
 
 import com.practice.Exception.UserAlreadyExistsException;
+import com.practice.dto.LoginDto;
 import com.practice.dto.UserDto;
 import com.practice.repository.UserRepository;
 import com.practice.service.UserService;
@@ -31,6 +32,25 @@ public class AuthController {
             return  ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
+
+     @PostMapping("/login")
+    public ResponseEntity<String> signIn(@RequestBody LoginDto  loginDto){
+         boolean status = userService.verifyLogin(loginDto);
+//         if(status){
+//             return new ResponseEntity<>("Login Successfull !!",HttpStatus.OK);
+//         }else{
+//             return new ResponseEntity<>("Invalid Username and Password !! try again. ", HttpStatus.UNAUTHORIZED);
+//         }
+
+        return status
+                ? new   ResponseEntity<>("Login Succesfull !!",HttpStatus.OK)
+                : new  ResponseEntity<>("Invalid username and password!! ", HttpStatus.UNAUTHORIZED);
+
+
+
+
+     }
+
 }
 
 

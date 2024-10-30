@@ -1,6 +1,7 @@
 package com.practice.serviceImpl;
 
 import com.practice.Exception.ResourceNotFoundException;
+import com.practice.Exception.UserAlreadyExistsException;
 import com.practice.dto.UserDto;
 import com.practice.entity.User;
 import com.practice.repository.UserRepository;
@@ -10,7 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.lang.module.ResolutionException;
 import java.util.List;
 import java.util.Optional;
@@ -28,35 +30,55 @@ public class UserServiceImpl implements UserService {
         this.mapper = mapper;
 
     }
+    final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Override
     public UserDto createUser(UserDto userDto) {
+       try{
         String userId = UUID.randomUUID().toString();
         userDto.setId(userId);
 
         // through email checking
         User user = mapToEntity(userDto);
         //Optional<User> opEmail = userRepository.findUserByEmail(userDto.getEmail());
-        //Optional<User> opEmail = userRepository.findUserByEmail(user.getEmail());
+//        Optional<User> opEmail = userRepository.findUserByEmail(user.getEmail());
+//        if(opEmail.isPresent()){
+//            throw new RuntimeException("user exist");
+//        }
 
-
-       // if(opEmail != null){
-       //     throw new RuntimeException("user exists");
-       // }
+           Optional<User> opEmail = userRepository.findUserByEmail(user.getEmail());
+           if (opEmail.isPresent()) {
+               throw new UserAlreadyExistsException("User with email already exists in the database.");
+           }
 
         // through username checking
         Optional<User> opUsername = userRepository.findByUsername(user.getUsername());
         if(opUsername.isPresent()){
-            throw new RuntimeException("User Exist in DB ");
+            throw new UserAlreadyExistsException("User with username already exist in the database. ");
         }
 
-//        String userId = UUID.randomUUID().toString();
-//        userDto.setId(userId);
-//
-        User savedUser = userRepository.save(user);
-        UserDto userDto1 = mapToDto(savedUser);
+//           Optional<User> existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
+//           if (existingUser.isPresent()) {
+//               if (existingUser.get().getUsername().equals(user.getUsername())) {
+//                   throw new UserAlreadyExistsException("User with username already exists.");
+//               } else if (existingUser.get().getEmail().equals(user.getEmail())) {
+//                   throw new UserAlreadyExistsException("User with email already exists.");
+//               }
+//           }
 
+
+           User savedUser = userRepository.save(user);
+        UserDto userDto1 = mapToDto(savedUser);
         return userDto1;
+
+    }catch(UserAlreadyExistsException e){
+           logger.warn("User already exists: " + e.getMessage());
+           logger.warn("User already exists with username: " + userDto.getUsername());
+          throw e;
+       } catch (Exception e) {
+           // Log unexpected exception and throw a generic runtime exception or custom exception
+           throw new RuntimeException("An unexpected error occurred while creating the user.", e);
+       }
     }
 
     private UserDto mapToDto(User user) {

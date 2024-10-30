@@ -1,5 +1,6 @@
 package com.practice.controller;
 
+import com.practice.Exception.UserAlreadyExistsException;
 import com.practice.dto.UserDto;
 import com.practice.repository.UserRepository;
 import com.practice.service.UserService;
@@ -22,8 +23,14 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto){
-        UserDto authUser = userService.createUser(userDto);
-        return new ResponseEntity<>(authUser, HttpStatus.CREATED);
+    public ResponseEntity<Object> createUser(@RequestBody UserDto userDto) {
+        try {
+            UserDto authUser = userService.createUser(userDto);
+            return new ResponseEntity<>(authUser, HttpStatus.CREATED);
+        } catch (UserAlreadyExistsException e) {
+            return  ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
 }
+
+

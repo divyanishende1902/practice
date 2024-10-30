@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,14 +39,10 @@ public class UserServiceImpl implements UserService {
         String userId = UUID.randomUUID().toString();
         userDto.setId(userId);
 
-        // through email checking
         User user = mapToEntity(userDto);
-        //Optional<User> opEmail = userRepository.findUserByEmail(userDto.getEmail());
-//        Optional<User> opEmail = userRepository.findUserByEmail(user.getEmail());
-//        if(opEmail.isPresent()){
-//            throw new RuntimeException("user exist");
-//        }
 
+        //Optional<User> opEmail = userRepository.findUserByEmail(userDto.getEmail());
+           // through email checking
            Optional<User> opEmail = userRepository.findUserByEmail(user.getEmail());
            if (opEmail.isPresent()) {
                throw new UserAlreadyExistsException("User with email already exists in the database.");
@@ -67,6 +64,9 @@ public class UserServiceImpl implements UserService {
 //           }
 
 
+           //password Encryption
+           String hashpw = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(5));
+           user.setPassword(hashpw);
            User savedUser = userRepository.save(user);
         UserDto userDto1 = mapToDto(savedUser);
         return userDto1;
